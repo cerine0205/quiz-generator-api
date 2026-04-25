@@ -17,4 +17,8 @@ class Message extends Model
     {
         return $this->belongsTo(Chat::class);
     }
+
+    protected $casts = [
+        'content' => 'array'
+    ];
 }
