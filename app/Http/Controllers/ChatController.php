@@ -2,64 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Chat;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // GET /api/chats
+    public function index(Request $request)
     {
-        //
+        return $request->user()
+            ->chats()
+            ->latest()
+            ->get();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // POST /api/chats
     public function store(Request $request)
     {
-        //
+        $chat = $request->user()->chats()->create([
+            'title' => $request->input('title', 'New Chat'),
+        ]);
+
+        return response()->json($chat, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Chat $chat)
+    // GET /api/chats/{id}
+    public function show(Request $request, $id)
     {
-        //
+        $chat = $request->user()
+            ->chats()
+            ->with('messages')
+            ->findOrFail($id);
+
+        return response()->json($chat);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Chat $chat)
+    // DELETE /api/chats/{id}
+    public function destroy(Request $request, $id)
     {
-        //
-    }
+        $chat = $request->user()
+            ->chats()
+            ->findOrFail($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Chat $chat)
-    {
-        //
-    }
+        $chat->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Chat $chat)
-    {
-        //
+        return response()->json([
+            'message' => 'Chat deleted successfully'
+        ]);
     }
 }
