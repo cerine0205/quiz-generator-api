@@ -50,6 +50,66 @@ class QuizController extends Controller
         return response()->json($quiz);
     }
 
+    // POST /api/plan
+    public function generatePlan(Request $request)
+    {
+        $request->validate([
+            'topic' => 'required|string|max:255',
+            'level' => 'required|string|max:50',
+        ]);
+
+        $topic = $request->topic;
+        $level = $request->level;
+
+        $response = OpenAI::chat()->create([
+            'model' => 'gpt-4.1-nano',
+            'response_format' => ['type' => 'json_object'],
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => '
+Return ONLY valid JSON.
+
+The JSON must contain:
+- level
+- plan
+
+The plan must be an array of exactly 7 days.
+
+Each day must include:
+- day
+- task
+- resource
+
+Do not include explanations.
+'
+                ],
+                [
+                    'role' => 'user',
+                    'content' => "
+Create a 7-day learning plan.
+
+Skill: {$topic}
+Level: {$level}
+"
+                ],
+            ],
+        ]);
+
+        $content = $response['choices'][0]['message']['content'];
+
+        $plan = json_decode($content, true);
+
+        if (!$plan) {
+            return response()->json([
+                'error' => 'Invalid AI response',
+                'raw_response' => $content,
+            ], 500);
+        }
+
+        return response()->json($plan);
+    }
+
     private function generateQuizFromAI(string $topic): array
     {
         $response = OpenAI::chat()->create([

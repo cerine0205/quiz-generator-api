@@ -5,6 +5,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/plan', [QuizController::class, 'generatePlan']);
+
 //guest 
 Route::post('/guest/generate', [QuizController::class, 'generateGuest']);
 
