@@ -5,10 +5,9 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/plan', [QuizController::class, 'generatePlan']);
-
 //guest 
 Route::post('/guest/generate', [QuizController::class, 'generateGuest']);
+Route::post('/guest/plan', [QuizController::class, 'generatePlan']);
 
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -24,5 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chats/{id}', [ChatController::class, 'show']);
     Route::delete('/chats/{id}', [ChatController::class, 'destroy']);
     Route::post('/chats/{id}/generate', [QuizController::class, 'generate']);
+    Route::post('/plan', [QuizController::class, 'generatePlan']);
     Route::get('/plans', [QuizController::class, 'getPlans']);
 });
