@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use OpenAI\Laravel\Facades\OpenAI;
 
@@ -56,10 +57,21 @@ class QuizController extends Controller
         $request->validate([
             'topic' => 'required|string|max:255',
             'level' => 'required|string|max:50',
+            'chat_id' => 'nullable|exists:chats,id',
         ]);
 
         $topic = $request->topic;
         $level = $request->level;
+
+        $chatId = null;
+
+        if ($request->user() && $request->chat_id) {
+            $chat = $request->user()
+                ->chats()
+                ->findOrFail($request->chat_id);
+
+            $chatId = $chat->id;
+        }
 
         $response = OpenAI::chat()->create([
             'model' => 'gpt-4.1-nano',
@@ -97,7 +109,6 @@ Level: {$level}
         ]);
 
         $content = $response['choices'][0]['message']['content'];
-
         $plan = json_decode($content, true);
 
         if (!$plan) {
@@ -107,7 +118,28 @@ Level: {$level}
             ], 500);
         }
 
+        if ($request->user()) {
+            Plan::create([
+                'user_id' => $request->user()->id,
+                'chat_id' => $chatId,
+                'topic' => $topic,
+                'level' => $plan['level'] ?? $level,
+                'plan' => $plan['plan'],
+            ]);
+        }
+
         return response()->json($plan);
+    }
+
+    // GET /api/plans
+    public function getPlans(Request $request)
+    {
+        $plans = $request->user()
+            ->plans()
+            ->latest()
+            ->get();
+
+        return response()->json($plans);
     }
 
     private function generateQuizFromAI(string $topic): array

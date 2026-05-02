@@ -24,4 +24,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chats/{id}', [ChatController::class, 'show']);
     Route::delete('/chats/{id}', [ChatController::class, 'destroy']);
     Route::post('/chats/{id}/generate', [QuizController::class, 'generate']);
+    Route::get('/plans', [QuizController::class, 'getPlans']);
 });
