@@ -195,4 +195,20 @@ Do not include explanations.
 
         return $quiz;
     }
+
+    public function updateProgress(Request $request, $id)
+    {
+        $request->validate([
+            'completed_days' => 'nullable|array',
+        ]);
+
+        $plan = $request->user()
+            ->plans()
+            ->findOrFail($id);
+
+        $plan->completed_days = $request->completed_days ?? [];
+        $plan->save();
+
+        return response()->json($plan);
+    }
 }

@@ -25,4 +25,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chats/{id}/generate', [QuizController::class, 'generate']);
     Route::post('/plan', [QuizController::class, 'generatePlan']);
     Route::get('/plans', [QuizController::class, 'getPlans']);
+    Route::patch('/plans/{id}/progress', [QuizController::class, 'updateProgress']);
 });

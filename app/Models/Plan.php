@@ -12,10 +12,12 @@ class Plan extends Model
         'topic',
         'level',
         'plan',
+        'completed_days',
     ];
 
     protected $casts = [
         'plan' => 'array',
+        'completed_days' => 'array',
     ];
 
     public function user()
